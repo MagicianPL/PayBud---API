@@ -31,12 +31,10 @@ userRouter.post("/register", async (req, res) => {
       existingUser = await UserModel.findOne({ email: email });
     }
     if (existingUser)
-      return res
-        .status(400)
-        .json({
-          message:
-            "Użytkownik o podanym loginie lub adresie e-mail istnieje już w systemie.",
-        });
+      return res.status(400).json({
+        message:
+          "Użytkownik o podanym loginie lub adresie e-mail istnieje już w systemie.",
+      });
     //Create new user
     const createdUser = new UserModel({
       login,

@@ -3,15 +3,19 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
+const userRouter = require("./routes/userRouter");
+
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-/*mongoose
+app.use("/api", userRouter);
+
+mongoose
   .connect(process.env.MONGO_DB_URI)
   .then(() => console.log("Connected to the DB"))
-  .catch((err) => console.log(err.message));*/
+  .catch((err) => console.log(err.message));
 
 app.get("/", (req, res) => {
   res.status(200).json({
