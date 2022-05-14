@@ -106,6 +106,7 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
+//UPDATE User - Bank Account
 userRouter.patch("/users/:userId", authUser, async (req, res) => {
   const { userId } = req.params;
   const { user } = req;
