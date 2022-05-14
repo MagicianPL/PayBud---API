@@ -136,12 +136,12 @@ userRouter.patch("/users/:userId", authUser, async (req, res) => {
       email: updatedUser.email,
       bankAccount: updatedUser.bankAccount ? true : null,
       token: jwt.sign(
-        JSON.stringify({
+        {
           _id: updatedUser._id,
           login: updatedUser.login,
           email: updatedUser.email,
           bankAccount: updatedUser.bankAccount ? true : null,
-        }),
+        },
         process.env.JWT_SECRET,
         {
           expiresIn: "1d",
