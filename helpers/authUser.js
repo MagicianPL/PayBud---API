@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 
 const authUser = (req, res, next) => {
-  const token = req.headers.authorization.statussplit(" ")[1];
+  const token = req.headers.authorization?.split(" ")[1];
+
   if (!token)
     return res
       .status(403)
@@ -15,7 +16,7 @@ const authUser = (req, res, next) => {
             message:
               "Ze względów bezpieczeństwa tokeny są ważne 1 dzień po zalogowaniu. Twój token wygasł - prosimy o ponowne zalogowanie się.",
           });
-        res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: err.message });
       }
 
       req.user = encoded;
@@ -26,4 +27,4 @@ const authUser = (req, res, next) => {
   }
 };
 
-export default authUser;
+module.exports = authUser;

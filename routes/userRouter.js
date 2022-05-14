@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const UserModel = require("../models/UserModel");
+const authUser = require("../helpers/authUser");
 
 const userRouter = express.Router();
 
@@ -102,6 +103,49 @@ userRouter.post("/login", async (req, res) => {
         }
       }
     );
+  }
+});
+
+userRouter.patch("/users/:userId", authUser, async (req, res) => {
+  const { userId } = req.params;
+  const { user } = req;
+  const { bankAccount } = req.body;
+
+  if (userId !== user._id)
+    return res.status(403).json({ message: "Dostęp zabroniony." });
+
+  if (!bankAccount || bankAccount.trim().length < 26)
+    return res.status(400).json({ message: "Wprowadzono nieprawidłowe dane." });
+
+  try {
+    const userFromDB = await UserModel.findById(user._id);
+    if (!userFromDB)
+      return res.status(404).json({ message: "Nie znaleziono użytkownika." });
+
+    const hashedBackAccount = bcrypt.hashSync(bankAccount, 8);
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: user._id },
+      { bankAccount: hashedBackAccount },
+      { new: true }
+    );
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      login: updatedUser.login,
+      email: updatedUser.email,
+      bankAccount: updatedUser.bankAccount ? true : null,
+      token: jwt.sign(
+        JSON.stringify({
+          _id: updatedUser._id,
+          login: updatedUser.login,
+          email: updatedUser.email,
+          bankAccount: updatedUser.bankAccount ? true : null,
+        }),
+        process.env.JWT_SECRET
+      ),
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
 
