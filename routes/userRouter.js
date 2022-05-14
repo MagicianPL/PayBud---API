@@ -6,6 +6,7 @@ const UserModel = require("../models/UserModel");
 
 const userRouter = express.Router();
 
+//SIGN UP
 userRouter.post("/register", async (req, res) => {
   const { login, email, password, repeatedPassword } = req.body;
   //validation
@@ -51,6 +52,7 @@ userRouter.post("/register", async (req, res) => {
   }
 });
 
+//SIGN IN
 userRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
