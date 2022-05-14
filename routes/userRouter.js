@@ -78,6 +78,7 @@ userRouter.post("/login", async (req, res) => {
     const user = existingUser.toObject();
     jwt.sign(
       {
+        _id: user._id,
         login: user.login,
         email: user.email,
         bankAccount: user.bankAccount ? true : null,
@@ -90,6 +91,7 @@ userRouter.post("/login", async (req, res) => {
         } else {
           user.token = token;
           res.status(200).json({
+            _id: user._id,
             login: user.login,
             email: user.email,
             bankAccount: user.bankAccount ? true : null,
