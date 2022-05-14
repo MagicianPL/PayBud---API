@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 const UserModel = require("../models/UserModel");
 
 const userRouter = express.Router();
@@ -49,7 +51,7 @@ userRouter.post("/register", async (req, res) => {
   }
 });
 
-/*userRouter.post("/login", async (req, res) => {
+userRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email.trim() || !password.trim()) {
@@ -61,7 +63,7 @@ userRouter.post("/register", async (req, res) => {
   //Checking if user exist in DB
   const existingUser = await UserModel.findOne({ email });
   if (!existingUser) {
-    res
+    return res
       .status(404)
       .json({ message: "Nieprawidłowa nazwa użytkownika lub hasło" });
   }
@@ -69,25 +71,34 @@ userRouter.post("/register", async (req, res) => {
   const auth = bcrypt.compareSync(password, existingUser.password);
 
   if (!auth) {
-    res
+    return res
       .status(404)
       .json({ message: "Nieprawidłowa nazwa użytkownika lub hasło" });
   } else {
     const user = existingUser.toObject();
     jwt.sign(
-      user,
+      {
+        login: user.login,
+        email: user.email,
+        bankAccount: user.bankAccount ? true : null,
+      },
       process.env.JWT_SECRET,
+      { expiresIn: "1d" },
       (err, token) => {
         if (err) {
           res.status(400).json({ message: err.message });
         } else {
           user.token = token;
-          res.status(200).json(user);
+          res.status(200).json({
+            login: user.login,
+            email: user.email,
+            bankAccount: user.bankAccount ? true : null,
+            token: user.token,
+          });
         }
-      },
-      { expiresIn: 60 }
+      }
     );
   }
-});*/
+});
 
 module.exports = userRouter;
