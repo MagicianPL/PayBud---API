@@ -1,6 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Cryptr = require("cryptr");
+const cryptr = new Cryptr(process.env.CRYPTR_SECRET);
 
 const UserModel = require("../models/UserModel");
 const authUser = require("../helpers/authUser");
@@ -106,16 +108,21 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
-//UPDATE User - Bank Account
+//UPDATE User - Bank Account and Mobile Phone Number
 userRouter.patch("/users/:userId", authUser, async (req, res) => {
   const { userId } = req.params;
   const { user } = req;
-  const { bankAccount } = req.body;
+  const { bankAccount, phoneNumber } = req.body;
 
   if (userId !== user._id)
     return res.status(403).json({ message: "Dostęp zabroniony." });
 
-  if (!bankAccount || bankAccount.trim().length < 26)
+  if (
+    !bankAccount ||
+    bankAccount.trim().length < 26 ||
+    !phoneNumber ||
+    phoneNumber.trim().length !== 9
+  )
     return res.status(400).json({ message: "Wprowadzono nieprawidłowe dane." });
 
   try {
@@ -123,10 +130,19 @@ userRouter.patch("/users/:userId", authUser, async (req, res) => {
     if (!userFromDB)
       return res.status(404).json({ message: "Nie znaleziono użytkownika." });
 
-    const hashedBackAccount = bcrypt.hashSync(bankAccount, 8);
+    if (userFromDB.bankAccount || userFromDB.phoneNumber)
+      return res
+        .status(400)
+        .json({
+          message:
+            "Użytkownik ma już przypisane dane. Ze względów bezpieczeństwa skontaktuj się z obsługą aby je zmienić.",
+        });
+
+    const hashedBackAccount = cryptr.encrypt(bankAccount);
+    const hashedPhoneNumber = cryptr.encrypt(phoneNumber);
     const updatedUser = await UserModel.findOneAndUpdate(
       { _id: user._id },
-      { bankAccount: hashedBackAccount },
+      { bankAccount: hashedBackAccount, phoneNumber: hashedPhoneNumber },
       { new: true }
     );
 
@@ -135,12 +151,14 @@ userRouter.patch("/users/:userId", authUser, async (req, res) => {
       login: updatedUser.login,
       email: updatedUser.email,
       bankAccount: updatedUser.bankAccount ? true : null,
+      phoneNumber: updatedUser.phoneNumber ? true : null,
       token: jwt.sign(
         {
           _id: updatedUser._id,
           login: updatedUser.login,
           email: updatedUser.email,
           bankAccount: updatedUser.bankAccount ? true : null,
+          phoneNumber: updatedUser.phoneNumber ? true : null,
         },
         process.env.JWT_SECRET,
         {

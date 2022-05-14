@@ -7,6 +7,7 @@ const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6, maxlength: 100 },
   bankAccount: { type: String, default: "", maxlength: 150 },
+  phoneNumber: { type: String, default: "", maxlength: 150 },
 });
 
 const UserModel = mongoose.model("User", UserSchema);
