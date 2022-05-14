@@ -131,18 +131,60 @@ userRouter.patch("/users/:userId", authUser, async (req, res) => {
       return res.status(404).json({ message: "Nie znaleziono użytkownika." });
 
     if (userFromDB.bankAccount || userFromDB.phoneNumber)
-      return res
-        .status(400)
-        .json({
-          message:
-            "Użytkownik ma już przypisane dane. Ze względów bezpieczeństwa skontaktuj się z obsługą aby je zmienić.",
-        });
+      return res.status(400).json({
+        message:
+          "Użytkownik ma już przypisane dane. Ze względów bezpieczeństwa skontaktuj się z obsługą aby je zmienić.",
+      });
 
     const hashedBackAccount = cryptr.encrypt(bankAccount);
     const hashedPhoneNumber = cryptr.encrypt(phoneNumber);
     const updatedUser = await UserModel.findOneAndUpdate(
       { _id: user._id },
       { bankAccount: hashedBackAccount, phoneNumber: hashedPhoneNumber },
+      { new: true }
+    );
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      login: updatedUser.login,
+      email: updatedUser.email,
+      bankAccount: updatedUser.bankAccount ? true : null,
+      phoneNumber: updatedUser.phoneNumber ? true : null,
+      token: jwt.sign(
+        {
+          _id: updatedUser._id,
+          login: updatedUser.login,
+          email: updatedUser.email,
+          bankAccount: updatedUser.bankAccount ? true : null,
+          phoneNumber: updatedUser.phoneNumber ? true : null,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1d",
+        }
+      ),
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+//DELETE User - Bank Account and Mobile Phone Number
+userRouter.delete("/users/:userId", authUser, async (req, res) => {
+  const { userId } = req.params;
+  const { user } = req;
+
+  if (userId !== user._id)
+    return res.status(403).json({ message: "Dostęp zabroniony." });
+
+  try {
+    const userFromDB = await UserModel.findById(user._id);
+    if (!userFromDB)
+      return res.status(404).json({ message: "Nie znaleziono użytkownika." });
+
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: user._id },
+      { bankAccount: "", phoneNumber: "" },
       { new: true }
     );
 
