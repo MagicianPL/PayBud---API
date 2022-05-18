@@ -8,6 +8,7 @@ const TransactionSchema = new Schema({
   status: { type: String, required: true },
   creator: { type: mongoose.Types.ObjectId, ref: "User", required: true },
   notes: { type: [], default: [] },
+  isArchived: { type: Boolean, required: true, default: false },
 });
 
 const TransactionModel = mongoose.model("Transaction", TransactionSchema);
