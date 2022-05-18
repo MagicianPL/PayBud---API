@@ -5,13 +5,14 @@ require("dotenv").config();
 
 const userRouter = require("./routes/userRouter");
 const transactionRouter = require("./routes/transactionRouter");
+const noteRouter = require("./routes/noteRouter");
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-app.use("/api", userRouter, transactionRouter);
+app.use("/api", userRouter, transactionRouter, noteRouter);
 
 mongoose
   .connect(process.env.MONGO_DB_URI)
