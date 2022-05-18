@@ -12,8 +12,7 @@ noteRouter.post("/notes", authUser, async (req, res) => {
   const { title, note, forTransaction } = req.body;
 
   //SIMPLE VALIDATION
-  if (!title || !note)
-    return res.status(400).json({ message: "Nieprawidłowe dane." });
+  if (!note) return res.status(400).json({ message: "Nieprawidłowe dane." });
 
   const session = await mongoose.startSession();
   try {
