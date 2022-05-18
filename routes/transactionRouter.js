@@ -52,4 +52,22 @@ transactionRouter.post("/transactions", authUser, async (req, res) => {
   }
 });
 
+//GET ALL TRANSACTIONS OF SPECIFIC USER
+transactionRouter.get(
+  "/transactions/user/:userId",
+  authUser,
+  async (req, res) => {
+    const { userId } = req.body;
+    if (userId !== req.user._id)
+      return res.status(400).json({ message: "Dostęp zabroniony." });
+
+    try {
+      const transactions = await TransactionModel.find({ creator: userId });
+      res.status(200).json(transactions);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
 module.exports = transactionRouter;
