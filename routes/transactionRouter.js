@@ -57,7 +57,8 @@ transactionRouter.get(
   "/transactions/user/:userId",
   authUser,
   async (req, res) => {
-    const { userId } = req.body;
+    const { userId } = req.params;
+
     if (userId !== req.user._id)
       return res.status(400).json({ message: "Dostęp zabroniony." });
 
