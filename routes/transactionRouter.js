@@ -84,8 +84,9 @@ transactionRouter.patch(
       });
 
       //Checking creator of this transaction
-      if (transactionFromDB.creator !== req.user._id)
+      if (transactionFromDB.creator.toString() !== req.user._id) {
         return res.status(400).json({ message: "Dostęp zabroniony." });
+      }
 
       const editedTransaction = await TransactionModel.findOneAndUpdate(
         { _id: transactionId },
