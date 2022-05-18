@@ -71,4 +71,35 @@ transactionRouter.get(
   }
 );
 
+transactionRouter.patch(
+  "/transactions/:transactionId",
+  authUser,
+  async (req, res) => {
+    const { transactionId } = req.params;
+    const transactionForExchange = req.body;
+
+    try {
+      const transactionFromDB = await TransactionModel.findById({
+        _id: transactionId,
+      });
+
+      //Checking creator of this transaction
+      if (transactionFromDB.creator !== req.user._id)
+        return res.status(400).json({ message: "Dostęp zabroniony." });
+
+      const editedTransaction = await TransactionModel.findOneAndUpdate(
+        { _id: transactionId },
+        {
+          ...transactionForExchange,
+        },
+        { new: true }
+      );
+
+      res.status(200).json({ editedTransaction });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
 module.exports = transactionRouter;
