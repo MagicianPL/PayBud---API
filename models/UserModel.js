@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   password: { type: String, required: true, minlength: 6, maxlength: 100 },
   bankAccount: { type: String, default: "", maxlength: 150 },
   phoneNumber: { type: String, default: "", maxlength: 150 },
+  transactions: { type: [mongoose.Types.ObjectId], default: [] },
 });
 
 const UserModel = mongoose.model("User", UserSchema);
