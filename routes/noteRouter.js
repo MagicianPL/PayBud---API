@@ -86,4 +86,48 @@ noteRouter.get("/notes/ofuser/:userId", authUser, async (req, res) => {
   }
 });
 
+//EDIT NOTE
+noteRouter.patch("/notes/:noteId", authUser, async (req, res) => {
+  const { noteId } = req.params;
+
+  try {
+    const noteFromDB = await NoteModel.findById(noteId);
+    if (!noteFromDB)
+      return res.status(404).json({ message: "Nie znaleziono notatki." });
+
+    //Checking for sure if auth user is also creator of this note
+    if (noteFromDB.creator.toString() !== req.user._id.toString())
+      return res.status(400).json({ message: "Dostęp zabroniony." });
+
+    const editedNote = await NoteModel.findOneAndUpdate(
+      { _id: noteFromDB._id },
+      {
+        ...noteFromDB,
+        note: req.body.note,
+      },
+      { new: true }
+    );
+
+    res.status(200).json(editedNote);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+//GET NOTE BY ID
+noteRouter.get("/notes/:noteId", authUser, async (req, res) => {
+  const { noteId } = req.params;
+
+  try {
+    const note = await NoteModel.findById(noteId);
+    //Checking if creator of this note is auth user also
+    if (note.creator.toString() !== req.user._id.toString())
+      return res.status(400).json({ message: "Dostęp zabroniony." });
+
+    res.status(200).json(note);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 module.exports = noteRouter;
