@@ -102,7 +102,7 @@ noteRouter.patch("/notes/:noteId", authUser, async (req, res) => {
     const editedNote = await NoteModel.findOneAndUpdate(
       { _id: noteFromDB._id },
       {
-        ...noteFromDB,
+        ...noteFromDB.toObject(),
         note: req.body.note,
       },
       { new: true }
