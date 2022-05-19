@@ -130,4 +130,53 @@ noteRouter.get("/notes/:noteId", authUser, async (req, res) => {
   }
 });
 
+//DELETE NOTE
+noteRouter.delete("/notes/:noteId", authUser, async (req, res) => {
+  const { noteId } = req.params;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const noteFromDB = await NoteModel.findById(noteId);
+    const transactionForThisNote = await TransactionModel.findById(
+      noteFromDB.forTransaction
+    ).populate("notes");
+
+    if (!noteFromDB)
+      return res.status(404).json({ message: "Nie znaleziono notatki." });
+
+    //Checking if auth user is also creator of this note
+    if (noteFromDB.creator.toString() !== req.user._id.toString())
+      return res.status(400).json({ message: "Dostęp zabroniony." });
+
+    //Deleting note
+    const deletedNote = await NoteModel.findOneAndDelete(
+      { _id: noteFromDB._id },
+      { session }
+    );
+    //If note has transaction connected - delete this note from notes array on this transaction
+    if (transactionForThisNote) {
+      const arrayWithoutDeletedNote = transactionForThisNote.notes.filter(
+        (note) => note._id.toString() !== noteId.toString()
+      );
+
+      const updatedTransaction = await TransactionModel.findOneAndUpdate(
+        { _id: transactionForThisNote._id },
+        {
+          notes: arrayWithoutDeletedNote,
+        },
+        { new: true, session }
+      );
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+    res.status(200).json(deletedNote);
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(400).json({ message: err.message });
+  }
+});
+
 module.exports = noteRouter;
