@@ -49,6 +49,7 @@ noteRouter.post("/notes", authUser, async (req, res) => {
   }
 });
 
+//GET NOTES OF SPECIFIC TRANSACTION
 noteRouter.get(
   "/notes/oftransaction/:transactionId",
   authUser,
@@ -59,7 +60,7 @@ noteRouter.get(
       const notes = await NoteModel.find({
         creator: req.user._id,
         forTransaction: transactionId,
-      });
+      }).populate("forTransaction");
       res.status(200).json(notes);
     } catch (err) {
       res.status(400).json({ message: err.message });
