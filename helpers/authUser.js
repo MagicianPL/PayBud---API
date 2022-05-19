@@ -14,7 +14,7 @@ const authUser = (req, res, next) => {
         if (err.name === "TokenExpiredError")
           return res.status(401).json({
             message:
-              "Ze względów bezpieczeństwa tokeny są ważne 1 dzień po zalogowaniu. Twój token wygasł - prosimy o ponowne zalogowanie się.",
+              "Ze względów bezpieczeństwa tokeny są ważne 3 dni po zalogowaniu. Twój token wygasł - prosimy o ponowne zalogowanie się.",
           });
         return res.status(400).json({ message: err.message });
       }
