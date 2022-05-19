@@ -68,4 +68,22 @@ noteRouter.get(
   }
 );
 
+//GET ALL NOTES OF SPECIFIC USER
+noteRouter.get("/notes/ofuser/:userId", authUser, async (req, res) => {
+  const { userId } = req.params;
+
+  //CHECKING IF AUTHUSER IS THE SAME AS USERID IN PARAMS
+  if (req.user._id !== userId)
+    return res.status(400).json({ message: "Dostęp zabroniony" });
+
+  try {
+    const notes = await NoteModel.find({
+      creator: req.user._id,
+    }).populate("forTransaction");
+    res.status(200).json(notes);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 module.exports = noteRouter;
