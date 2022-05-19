@@ -71,6 +71,7 @@ transactionRouter.get(
   }
 );
 
+//EDITING TRANSACTION
 transactionRouter.patch(
   "/transactions/:transactionId",
   authUser,
