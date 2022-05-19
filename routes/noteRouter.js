@@ -49,4 +49,22 @@ noteRouter.post("/notes", authUser, async (req, res) => {
   }
 });
 
+noteRouter.get(
+  "/notes/oftransaction/:transactionId",
+  authUser,
+  async (req, res) => {
+    const { transactionId } = req.params;
+
+    try {
+      const notes = await NoteModel.find({
+        creator: req.user._id,
+        forTransaction: transactionId,
+      });
+      res.status(200).json(notes);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
 module.exports = noteRouter;
