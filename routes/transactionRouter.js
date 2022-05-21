@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const TransactionModel = require("../models/TransactionModel");
 const authUser = require("../helpers/authUser");
 const UserModel = require("../models/UserModel");
+const TransactionsAmountModel = require("../models/TransactionsAmountModel");
 
 const transactionRouter = express.Router();
 
@@ -103,5 +104,17 @@ transactionRouter.patch(
     }
   }
 );
+
+/***********************STUFF FOR ONLY TRANSACTIONS AMOUNT **************************** */
+//JUST GET TOTAL TRANSACTIONS AMOUNT
+transactionRouter.get("/transactionsamount/", async (req, res) => {
+  try {
+    const transactionsAmount = await TransactionsAmountModel.findOne({});
+
+    res.status(200).json({ transactionsAmount });
+  } catch {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 module.exports = transactionRouter;
