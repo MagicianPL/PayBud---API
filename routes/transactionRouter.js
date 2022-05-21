@@ -46,6 +46,12 @@ transactionRouter.post("/transactions", authUser, async (req, res) => {
     await session.commitTransaction();
     res.status(201).json(createdTransaction);
     session.endSession();
+    //Updating transactions amount
+    const transactionsAmount = await TransactionsAmountModel.findOne({});
+    await TransactionsAmountModel.findOneAndUpdate(
+      { _id: transactionsAmount._id },
+      { transactions: transactionsAmount.transactions + 1 }
+    );
   } catch (err) {
     await session.abortTransaction();
     res.status(400).json({ message: err.message });
