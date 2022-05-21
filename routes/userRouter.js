@@ -1,8 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const Cryptr = require("cryptr");
-const cryptr = new Cryptr(process.env.CRYPTR_SECRET);
 
 const UserModel = require("../models/UserModel");
 const authUser = require("../helpers/authUser");
