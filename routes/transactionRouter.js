@@ -117,7 +117,7 @@ transactionRouter.get("/transactionsamount/", async (req, res) => {
   try {
     const transactionsAmount = await TransactionsAmountModel.findOne({});
 
-    res.status(200).json({ transactionsAmount });
+    res.status(200).json(transactionsAmount);
   } catch {
     res.status(400).json({ message: err.message });
   }
